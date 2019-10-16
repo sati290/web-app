@@ -16,13 +16,15 @@ class LoginForm extends React.Component {
     })
   }
 
-  handleSubmit() {
+  handleSubmit(event) {
+    event.preventDefault()
 
+    this.props.onLogin()
   }
 
   render() {
     return (
-      <Form onSubmit={() => this.handleSubmit()}>
+      <Form onSubmit={(e) => this.handleSubmit(e)}>
         <Form.Group>
           <Form.Label>Email address</Form.Label>
           <Form.Control name="email" type="email" onChange={e => this.handleChange(e)}/>
@@ -42,7 +44,8 @@ export default class App extends React.Component {
     user: {}
   }
 
-  handleLogin(event) {
+  handleLogin() {
+    alert("login")
   }
 
   render() {
@@ -52,7 +55,7 @@ export default class App extends React.Component {
       <div>
         {name
           ? "Logged in as " + name
-          : <LoginForm onSubmit={e => this.handleLogin(e)} />
+          : <LoginForm onLogin={() => this.handleLogin()} />
         }
       </div>
     )
