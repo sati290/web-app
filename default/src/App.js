@@ -4,6 +4,19 @@ import './App.css';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 
+import * as firebase from 'firebase/app'
+import 'firebase/auth'
+
+const firebaseConfig = {
+  apiKey: process.env.REACT_APP_API_KEY,
+  authDomain: process.env.REACT_APP_AUTH_DOMAIN,
+  databaseURL: process.env.REACT_APP_DATABASE_URL,
+  projectId: process.env.REACT_APP_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_ID
+};
+
 class LoginForm extends React.Component {
   state = {
     email: "",
@@ -18,8 +31,10 @@ class LoginForm extends React.Component {
 
   handleSubmit(event) {
     event.preventDefault()
-
-    this.props.onLogin()
+    
+    firebase.auth().signInWithEmailAndPassword(this.state.email, this.state.password).catch(error => {
+      alert("Sign in failed: " + error.message)
+    })
   }
 
   render() {
@@ -41,21 +56,33 @@ class LoginForm extends React.Component {
 
 export default class App extends React.Component {
   state = {
-    user: {}
+    user: null
   }
 
-  handleLogin() {
-    alert("login")
+  componentDidMount() {
+    firebase.initializeApp(firebaseConfig)
+
+    firebase.auth().onAuthStateChanged(user =>{
+      if (user) {
+        this.setState({user: user})
+      } else {
+        this.setState({user: null})
+      }
+    })
+  }
+
+  doLogout() {
+    firebase.auth().signOut()
   }
 
   render() {
-    const { name } = this.state.user
+    const user = this.state.user
 
     return (
       <div>
-        {name
-          ? "Logged in as " + name
-          : <LoginForm onLogin={() => this.handleLogin()} />
+        {user
+          ? <div>Logged in as {user.email}. <Button onClick={() => this.doLogout()}>Logout</Button></div>
+          : <LoginForm />
         }
       </div>
     )
