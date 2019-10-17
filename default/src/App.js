@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import './App.css';
 
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
+import Overlay from 'react-bootstrap/Overlay';
+import Navbar from 'react-bootstrap/Navbar';
 
 import * as firebase from 'firebase/app'
 import 'firebase/auth'
@@ -48,10 +50,34 @@ class LoginForm extends React.Component {
           <Form.Label>Password</Form.Label>
           <Form.Control name="password" type="password" onChange={e => this.handleChange(e)}/>
         </Form.Group>
-        <Button type="submit">Submit</Button>
+        <Button type="submit">Login</Button>
       </Form>
     )
   }
+}
+
+function LoginButton() {
+  const [show, setShow] = useState(false)
+  const target = useRef(null)
+
+  return (
+    <>
+      <Button variant='light' ref={target} onClick={() => setShow(!show)}>Not logged in</Button>
+      <Overlay target={target.current} show={show} placement="bottom">
+        <div style={{ backgroundColor: 'white', marginTop: 6, padding: 4, boxShadow: '0 3px 8px grey' }}>
+          <LoginForm />
+        </div>
+      </Overlay>
+    </>
+  )
+}
+
+function UserStatus(props) {
+  return (
+    props.user
+      ? <div style={{color: 'white'}} >Logged in as {props.user.email} <Button onClick={() => firebase.auth().signOut()}>Logout</Button></div>
+      : <LoginButton />
+  )
 }
 
 export default class App extends React.Component {
@@ -71,20 +97,15 @@ export default class App extends React.Component {
     })
   }
 
-  doLogout() {
-    firebase.auth().signOut()
-  }
-
   render() {
-    const user = this.state.user
-
     return (
-      <div>
-        {user
-          ? <div>Logged in as {user.email}. <Button onClick={() => this.doLogout()}>Logout</Button></div>
-          : <LoginForm />
-        }
-      </div>
+      <>
+        <Navbar bg='dark' variant='dark'>
+          <Navbar.Brand href='#home'>Test Web App</Navbar.Brand>
+          <Navbar.Collapse />
+          <UserStatus user={this.state.user} />
+        </Navbar>
+      </>
     )
   }
 }
