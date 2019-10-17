@@ -75,7 +75,9 @@ function LoginButton() {
 function UserStatus(props) {
   return (
     props.user
-      ? <div style={{color: 'white'}} >Logged in as {props.user.email} <Button onClick={() => firebase.auth().signOut()}>Logout</Button></div>
+      ? <div style={{color: 'white'}}>
+          Logged in as {props.user.email} <Button variant='light' onClick={() => firebase.auth().signOut()}>Logout</Button>
+        </div>
       : <LoginButton />
   )
 }
