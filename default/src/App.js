@@ -1,13 +1,14 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import './App.css';
 
-import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
-import Overlay from 'react-bootstrap/Overlay';
-import Navbar from 'react-bootstrap/Navbar';
+import AppBar from '@material-ui/core/AppBar'
+import Toolbar from '@material-ui/core/Toolbar'
+import Typography from '@material-ui/core/Typography'
+import Button from '@material-ui/core/Button'
 
 import * as firebase from 'firebase/app'
 import 'firebase/auth'
+import { Dialog, DialogTitle, TextField, DialogContent, DialogContentText, DialogActions } from '@material-ui/core';
 
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_API_KEY,
@@ -19,75 +20,65 @@ const firebaseConfig = {
   appId: process.env.REACT_APP_ID
 };
 
-class LoginForm extends React.Component {
-  state = {
-    email: "",
-    password: ""
-  }
+function LoginDialog(props) {
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [error, setError] = useState(null)
 
-  handleChange(event) {
-    this.setState({
-      [event.target.name]: event.target.value
-    })
-  }
-
-  handleSubmit(event) {
+  const handleSubmit = (event) => {
     event.preventDefault()
-    
-    firebase.auth().signInWithEmailAndPassword(this.state.email, this.state.password).catch(error => {
-      alert("Sign in failed: " + error.message)
+
+    firebase.auth().signInWithEmailAndPassword(email, password).then(() => {
+      props.onClose()
+    }).catch(error => {
+      setError(error.message)
     })
   }
 
-  render() {
-    return (
-      <Form onSubmit={(e) => this.handleSubmit(e)}>
-        <Form.Group>
-          <Form.Label>Email address</Form.Label>
-          <Form.Control name="email" type="email" onChange={e => this.handleChange(e)}/>
-        </Form.Group>
-        <Form.Group controlId="formPassword">
-          <Form.Label>Password</Form.Label>
-          <Form.Control name="password" type="password" onChange={e => this.handleChange(e)}/>
-        </Form.Group>
-        <Button type="submit">Login</Button>
-      </Form>
-    )
-  }
+  return (
+    <Dialog open={props.open} onClose={props.onClose}>
+      <DialogTitle>Login</DialogTitle>
+      <DialogContent>
+        <DialogContentText>
+          Enter your credentials to login.
+        </DialogContentText>
+        <form id='login-form' style={{display: 'flex', flexDirection: 'column'}} onSubmit={handleSubmit}>
+          <TextField label="Email" type="email" onChange={e => setEmail(e.target.value)}/>
+          <TextField label="Password" type="password" onChange={e => setPassword(e.target.value)}/>
+        </form>
+        {error && <DialogContentText>{error}</DialogContentText>}
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={props.onClose}>Cancel</Button>
+        <Button form='login-form' type='submit'>Submit</Button>
+      </DialogActions>
+    </Dialog>
+  )
 }
 
-function LoginButton() {
-  const [show, setShow] = useState(false)
-  const target = useRef(null)
+function LoginButton(props) {
+  const [open, setOpen] = useState(false)
+
+  const handleClose = () => {
+    setOpen(false)
+  }
 
   return (
     <>
-      <Button variant='light' ref={target} onClick={() => setShow(!show)}>Not logged in</Button>
-      <Overlay target={target.current} show={show} placement="bottom">
-        <div style={{ backgroundColor: 'white', marginTop: 6, padding: 4, boxShadow: '0 3px 8px grey' }}>
-          <LoginForm />
-        </div>
-      </Overlay>
+      <Button onClick={() => setOpen(true)} {...props}>Login</Button>
+      <LoginDialog open={open} onClose={handleClose} />
     </>
   )
 }
 
-function UserStatus(props) {
-  return (
-    props.user
-      ? <div style={{color: 'white'}}>
-          Logged in as {props.user.email} <Button variant='light' onClick={() => firebase.auth().signOut()}>Logout</Button>
-        </div>
-      : <LoginButton />
-  )
-}
-
 export default class App extends React.Component {
-  state = {
-    user: null
-  }
+  constructor(props) {
+    super(props)
 
-  componentDidMount() {
+    this.state = {
+      user: null
+    }
+
     firebase.initializeApp(firebaseConfig)
 
     firebase.auth().onAuthStateChanged(user =>{
@@ -102,11 +93,15 @@ export default class App extends React.Component {
   render() {
     return (
       <>
-        <Navbar bg='dark' variant='dark'>
-          <Navbar.Brand href='#home'>Test Web App</Navbar.Brand>
-          <Navbar.Collapse />
-          <UserStatus user={this.state.user} />
-        </Navbar>
+        <AppBar position='static'>
+          <Toolbar>
+            <Typography variant='h6' style={{flexGrow: 1}}>Test Web App</Typography>
+            {this.state.user
+              ? <Button color='inherit' onClick={() => firebase.auth().signOut()}>Logout</Button>
+              : <LoginButton color='inherit' />
+            }
+          </Toolbar>
+        </AppBar>
       </>
     )
   }
