@@ -12,6 +12,11 @@
       "**/node_modules/**"
     ],
 
+    "rewrites": [ {
+      "source": "/api/helloWorld",
+      "function": "helloWorld"
+    } ],
+
     "headers": [ {
       "source": "**",
       "headers": [ {

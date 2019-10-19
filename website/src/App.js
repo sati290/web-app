@@ -77,7 +77,7 @@ class RestTest extends React.Component {
   }
 
   componentDidMount() {
-    fetch("https://us-central1-test-web-app-255809.cloudfunctions.net/helloWorld")
+    fetch("https://test-web-app-255809.web.app/api/helloWorld")
       .then(res => res.text())
       .then(data => this.setState({message: data}))
       .catch(console.log)
