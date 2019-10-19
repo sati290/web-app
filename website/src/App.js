@@ -71,6 +71,25 @@ function LoginButton(props) {
   )
 }
 
+class RestTest extends React.Component {
+  state = {
+    message: ""
+  }
+
+  componentDidMount() {
+    fetch("https://us-central1-test-web-app-255809.cloudfunctions.net/helloWorld")
+      .then(res => res.text())
+      .then(data => this.setState({message: data}))
+      .catch(console.log)
+  }
+
+  render() {
+    return (
+      <Typography>{this.state.message}</Typography>
+    )
+  }
+}
+
 export default class App extends React.Component {
   constructor(props) {
     super(props)
@@ -102,6 +121,7 @@ export default class App extends React.Component {
             }
           </Toolbar>
         </AppBar>
+        <RestTest />
       </>
     )
   }
