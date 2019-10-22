@@ -22,13 +22,15 @@ function LoginDialog(props) {
 
     firebase.auth().signInWithEmailAndPassword(email, password).then(() => {
       props.onClose();
-    }).catch(error => {
-      setError(error.message);
+    }).catch(err => {
+      setError(err.message);
     });
   };
 
+  const { open, onClose } = props;
+
   return (
-    <Dialog open={props.open} onClose={props.onClose}>
+    <Dialog open={open} onClose={onClose}>
       <DialogTitle>Login</DialogTitle>
       <DialogContent>
         <DialogContentText>
@@ -41,7 +43,7 @@ function LoginDialog(props) {
         {error && <DialogContentText>{error}</DialogContentText>}
       </DialogContent>
       <DialogActions>
-        <Button onClick={props.onClose}>Cancel</Button>
+        <Button onClick={onClose}>Cancel</Button>
         <Button form="login-form" type="submit">Submit</Button>
       </DialogActions>
     </Dialog>
@@ -76,8 +78,10 @@ class RestTest extends React.Component {
   }
 
   render() {
+    const { message } = this.state;
+
     return (
-      <Typography>{this.state.message}</Typography>
+      <Typography>{message}</Typography>
     );
   }
 }
@@ -101,12 +105,14 @@ export default class App extends React.Component {
   }
 
   render() {
+    const { user } = this.state;
+
     return (
       <>
         <AppBar position="static">
           <Toolbar>
             <Typography variant="h6" style={{ flexGrow: 1 }}>Test Web App</Typography>
-            {this.state.user
+            {user
               ? <Button color="inherit" onClick={() => firebase.auth().signOut()}>Logout</Button>
               : <LoginButton color="inherit" />}
           </Toolbar>
