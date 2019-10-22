@@ -15,9 +15,6 @@
     "rewrites": [ {
       "source": "/api/helloWorld",
       "function": "helloWorld"
-    }, {
-      "source": "/api/auth",
-      "function": "auth"
     } ],
 
     "headers": [ {
