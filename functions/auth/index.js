@@ -1,5 +1,6 @@
 const admin = require('firebase-admin')
 const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
 const express = require('express')
 const cors = require('cors')
 const router = express.Router()
@@ -23,9 +24,11 @@ router.post('/signIn', async (req, res) => {
 
       const result = await bcrypt.compare(req.body.password, data.password)
       if(result === true) {
+        token = jwt.sign({}, "verySecret64357", {subject: doc.id, expiresIn: '1h'})
         res.json({
           id: doc.id,
-          email: data.email
+          email: data.email,
+          token: token
         })
       } else {
         res.sendStatus(401)
