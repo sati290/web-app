@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 
 import AppBar from '@material-ui/core/AppBar';
@@ -65,25 +65,19 @@ function LoginButton(props) {
   );
 }
 
-class RestTest extends React.Component {
-  state = {
-    message: '',
-  }
+function RestTest() {
+  const [message, setMessage] = useState('');
 
-  componentDidMount() {
+  useEffect(() => {
     fetch('https://test-web-app-255809.web.app/api/helloWorld')
       .then(res => res.text())
-      .then(data => this.setState({ message: data }))
+      .then(setMessage)
       .catch(console.log);
-  }
+  }, []);
 
-  render() {
-    const { message } = this.state;
-
-    return (
-      <Typography>{message}</Typography>
-    );
-  }
+  return (
+    <Typography>{message}</Typography>
+  );
 }
 
 export default class App extends React.Component {
